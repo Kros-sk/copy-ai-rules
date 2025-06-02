@@ -34,16 +34,18 @@ $JunieDir = ".junie"
 
 # Function to check for updates
 function Test-ScriptUpdate {
+    param([string]$ScriptPath)
+
     try {
         $currentVersion = "1.0.0"  # fallback
-        if ($MyInvocation.MyCommand.Path -and (Test-Path $MyInvocation.MyCommand.Path)) {
-            $scriptContent = Get-Content $MyInvocation.MyCommand.Path | Select-Object -First 5 | Out-String
+        if ($ScriptPath -and (Test-Path $ScriptPath)) {
+            $scriptContent = Get-Content $ScriptPath | Select-Object -First 10 | Out-String
             if ($scriptContent -match "# Version: ([\d\.]+)") {
                 $currentVersion = $matches[1]
             }
         }
 
-        $rawUrl = "https://raw.githubusercontent.com/Kros-sk/copy-ai-rules/main/copy-ai-rules.ps1"
+        $rawUrl = "https://raw.githubusercontent.com/Kros-sk/copy-ai-rules/refs/heads/master/copy-ai-rules.ps1"
         $content = Invoke-RestMethod -Uri $rawUrl -ErrorAction Stop
         
         if ($content -match "# Version: ([\d\.]+)") {
@@ -227,10 +229,10 @@ try {
     Write-Host "AI Rules Copy Script" -ForegroundColor Green
     
     # Check for updates and abort if newer version available
-    if (-not (Test-ScriptUpdate)) {
+    if (-not (Test-ScriptUpdate -ScriptPath $MyInvocation.MyCommand.Path)) {
         exit 1
     }
-    
+
     Write-Host "Starting AI Rules copy process..." -ForegroundColor Green
     
     # Load configuration
@@ -243,6 +245,24 @@ try {
     if (-not (Test-Path $SourceDir)) {
         Write-Error "Source directory '$SourceDir' not found!"
         exit 1
+    }
+
+    # Clean up existing target directories to start fresh
+    Write-Host "Cleaning up existing target directories..." -ForegroundColor Yellow
+    
+    if (Test-Path $CursorDir) {
+        Remove-Item -Path $CursorDir -Recurse -Force
+        Write-Host "  → Removed: $CursorDir" -ForegroundColor Gray
+    }
+    
+    if (Test-Path $CopilotDir) {
+        Remove-Item -Path $CopilotDir -Recurse -Force
+        Write-Host "  → Removed: $CopilotDir" -ForegroundColor Gray
+    }
+    
+    if (Test-Path $JunieDir) {
+        Remove-Item -Path $JunieDir -Recurse -Force
+        Write-Host "  → Removed: $JunieDir" -ForegroundColor Gray
     }
     
     # Create target directories if they don't exist and are needed
