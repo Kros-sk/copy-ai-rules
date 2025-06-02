@@ -1,4 +1,4 @@
-#!/usr/bin/env pwsh
+# Version: 1.0.0
 
 <#
 .SYNOPSIS
@@ -31,6 +31,47 @@ $ConfigFile = Join-Path $SourceDir "ai-rules-config.json"
 $CursorDir = ".cursor" + $PathSeparator + "rules"
 $CopilotDir = ".github" + $PathSeparator + "instructions"
 $JunieDir = ".junie"
+
+# Function to check for updates
+function Test-ScriptUpdate {
+    try {
+        $currentVersion = "1.0.0"  # fallback
+        if ($MyInvocation.MyCommand.Path -and (Test-Path $MyInvocation.MyCommand.Path)) {
+            $scriptContent = Get-Content $MyInvocation.MyCommand.Path | Select-Object -First 5 | Out-String
+            if ($scriptContent -match "# Version: ([\d\.]+)") {
+                $currentVersion = $matches[1]
+            }
+        }
+
+        $rawUrl = "https://raw.githubusercontent.com/Kros-sk/copy-ai-rules/main/copy-ai-rules.ps1"
+        $content = Invoke-RestMethod -Uri $rawUrl -ErrorAction Stop
+        
+        if ($content -match "# Version: ([\d\.]+)") {
+            $latestVersion = $matches[1]
+            
+            if ([version]$latestVersion -gt [version]$CurrentVersion) {
+                Write-Host ""
+                Write-Host "🚫 Script Update Required!" -ForegroundColor Red
+                Write-Host "   Current version: v$CurrentVersion" -ForegroundColor Yellow
+                Write-Host "   Latest version:  v$latestVersion" -ForegroundColor Green
+                Write-Host ""
+                Write-Host "Please update to the latest version before continuing:" -ForegroundColor White
+                Write-Host "   Download: https://github.com/Kros-sk/copy-ai-rules" -ForegroundColor Blue
+                Write-Host ""
+                Write-Host "Aborting script execution." -ForegroundColor Red
+                return $false
+            }
+        }
+        
+        return $true
+    }
+    catch {
+        # If version check fails, allow script to continue
+        Write-Debug "Version check failed: $($_.Exception.Message)"
+        return $true
+    }
+}
+
 
 # Function to read configuration file
 function Get-AssistantConfig {
@@ -183,6 +224,13 @@ applyTo: '$pattern'
 
 # Main script execution
 try {
+    Write-Host "AI Rules Copy Script" -ForegroundColor Green
+    
+    # Check for updates and abort if newer version available
+    if (-not (Test-ScriptUpdate)) {
+        exit 1
+    }
+    
     Write-Host "Starting AI Rules copy process..." -ForegroundColor Green
     
     # Load configuration
