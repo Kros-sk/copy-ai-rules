@@ -5,7 +5,7 @@ A cross-platform PowerShell script that converts your AI coding rules into assis
 ## 🚀 Quick Start
 
 ```bash
-# Download and run the script
+# Download and run the script from the project root
 curl -o copy-ai-rules.ps1 https://raw.githubusercontent.com/Kros-sk/copy-ai-rules/main/copy-ai-rules.ps1
 pwsh ./copy-ai-rules.ps1
 ```
