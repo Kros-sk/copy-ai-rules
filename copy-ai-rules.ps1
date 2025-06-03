@@ -46,7 +46,7 @@ function Test-ScriptUpdate {
         }
 
         $rawUrl = "https://raw.githubusercontent.com/Kros-sk/copy-ai-rules/refs/heads/master/copy-ai-rules.ps1"
-        $content = Invoke-RestMethod -Uri $rawUrl -ErrorAction Stop
+        $content = Invoke-RestMethod -Uri $rawUrl -TimeoutSec 5 -ErrorAction Stop
         
         if ($content -match "# Version: ([\d\.]+)") {
             $latestVersion = $matches[1]
@@ -285,7 +285,7 @@ try {
     $junieContent = @()
     
     # Get all .md files from source directory
-    $mdFiles = Get-ChildItem -Path $SourceDir -Filter "*.md" -File
+    $mdFiles = Get-ChildItem -Path $SourceDir -Filter "*.md" -File | Where-Object { $_.Name -ne "README.md" }
     
     if ($mdFiles.Count -eq 0) {
         Write-Warning "No .md files found in '$SourceDir' directory."
