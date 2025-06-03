@@ -6,7 +6,7 @@ A cross-platform PowerShell script that converts your AI coding rules into assis
 
 ```bash
 # Download and run the script from the project root
-curl -o copy-ai-rules.ps1 https://raw.githubusercontent.com/Kros-sk/copy-ai-rules/main/copy-ai-rules.ps1
+curl -o copy-ai-rules.ps1 https://raw.githubusercontent.com/Kros-sk/copy-ai-rules/master/copy-ai-rules.ps1
 pwsh ./copy-ai-rules.ps1
 ```
 
@@ -20,7 +20,7 @@ your-project/
 │   ├── api-rules.md
 │   ├── domain-rules.md
 │   ├── ai-rules-config.json
-│   └── README.md              # ← Instructions for your team (ignored by script)
+│   └── README.md              # ← Optional instructions for your team (ignored by script)
 └── copy-ai-rules.ps1
 ```
 
